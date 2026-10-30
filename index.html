@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Trang cá nhân của Nguyễn Hoài An - Sinh viên ngành Trí tuệ nhân tạo, Trường Đại học Lạc Hồng. Tìm hiểu về kỹ năng, hành trình, lộ trình học tập và thông tin liên hệ." data-i18n-attr="content:metaDescription">
+  <meta name="theme-color" content="#f8fafc" id="metaThemeColor">
+
+  <title data-i18n="pageTitle">Nguyễn Hoài An | Portfolio Cá Nhân</title>
+
+  <!-- Biểu tượng cá nhân hóa (Favicon) thay thế icon trái đất mặc định trên tab trình duyệt/taskbar -->
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="alternate icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%234f46e5'/%3E%3Cstop offset='100%25' stop-color='%2306b6d4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23bg)'/%3E%3Ccircle cx='49' cy='15' r='3.5' fill='%23ffffff'/%3E%3Ctext x='30' y='44' font-family='system-ui,sans-serif' font-weight='800' font-size='28' fill='%23ffffff' text-anchor='middle'%3EHA%3C/text%3E%3C/svg%3E">
+
+  <!-- Script inline thực thi TRƯỚC KHI VẼ GIAO DIỆN để áp dụng theme, triệt tiêu hoàn toàn nháy sáng/tối (FOUC) & hỗ trợ đa định dạng ảnh (png/jpg/webp) -->
+  <script>
+    (function () {
+      try {
+        var savedTheme = localStorage.getItem('portfolio_theme');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var activeTheme = (savedTheme === 'light' || savedTheme === 'dark') 
+          ? savedTheme 
+          : (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', activeTheme);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+
+    // Tự động thử các định dạng ảnh phổ biến (png, jpg, jpeg, webp) khi người dùng đổi file
+    function handleAvatarError(img) {
+      var candidates = ['assets/avatar.png', 'assets/avatar.jpg', 'assets/avatar.jpeg', 'assets/avatar.webp'];
+      var currentSrc = img.getAttribute('src');
+      var nextIdx = candidates.indexOf(currentSrc) + 1;
+      if (nextIdx > 0 && nextIdx < candidates.length) {
+        img.src = candidates[nextIdx];
+      } else {
+        var container = document.getElementById('heroAvatarContainer');
+        if (container) container.classList.add('avatar-has-fallback');
+      }
+    }
+
+    function handleCoverError(img) {
+      var candidates = ['assets/cover.jpg', 'assets/cover.png', 'assets/cover.jpeg', 'assets/cover.webp'];
+      var currentSrc = img.getAttribute('src');
+      var nextIdx = candidates.indexOf(currentSrc) + 1;
+      if (nextIdx > 0 && nextIdx < candidates.length) {
+        img.src = candidates[nextIdx];
+      } else {
+        img.style.display = 'none';
+      }
+    }
+  </script>
+
+  <!-- Tải 1 tài nguyên bên ngoài DUY NHẤT: Font chữ Be Vietnam Pro hỗ trợ chuẩn tiếng Việt -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+  <!-- Toàn bộ định kiểu CSS3 thuần -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Thanh tiến độ cuộn trang siêu mảnh ở đỉnh trang (Hiệu ứng 1) -->
+  <div class="scroll-progress-bar" id="scrollProgressBar" aria-hidden="true"></div>
+
+  <!-- Vệt sáng mờ theo con trỏ chuột trên nền (Hiệu ứng 5) -->
+  <div class="cursor-glow-light" id="cursorFollowerGlow" aria-hidden="true"></div>
+
+  <!-- NỀN ĐỘNG 2 LỚP: Tuyệt đối không che nội dung, z-index âm, pointer-events: none -->
+  <!-- Lớp 1: Aurora CSS 3 khối trôi chậm (z-index: -3) -->
+  <div class="aurora-container" aria-hidden="true" id="auroraContainer">
+    <div class="aurora-blob aurora-blob-1"></div>
+    <div class="aurora-blob aurora-blob-2"></div>
+    <div class="aurora-blob aurora-blob-3"></div>
+  </div>
+
+  <!-- Lớp 2: Mạng hạt Neural Network bằng HTML5 Canvas (z-index: -2) -->
+  <canvas class="neural-canvas" id="neuralCanvas" aria-hidden="true"></canvas>
+
+  <!-- THANH ĐIỀU HƯỚNG DÍNH (STICKY NAVBAR - 6 MỤC) -->
+  <header class="navbar" id="navbar">
+    <div class="container nav-container">
+      <a href="#home" class="nav-brand" aria-label="Nguyễn Hoài An Portfolio Home">
+        <span class="nav-brand-badge">HA</span>
+        <span>Nguyễn Hoài An</span>
+      </a>
+
+      <!-- Danh sách 6 liên kết điều hướng (Hỗ trợ Scrollspy) -->
+      <nav aria-label="Menu chính">
+        <ul class="nav-links" id="navLinks">
+          <li><a href="#home" class="nav-link active" data-i18n="navHome">Trang chủ</a></li>
+          <li><a href="#about" class="nav-link" data-i18n="navAbout">Về tôi</a></li>
+          <li><a href="#skills" class="nav-link" data-i18n="navSkills">Kỹ năng</a></li>
+          <li><a href="#journey" class="nav-link" data-i18n="navJourney">Hành trình</a></li>
+          <li><a href="#roadmap" class="nav-link" data-i18n="navRoadmap">Lộ trình</a></li>
+          <li><a href="#contact" class="nav-link" data-i18n="navContact">Liên hệ</a></li>
+        </ul>
+      </nav>
+
+      <!-- Các nút tiện ích: Đổi ngôn ngữ, Đổi theme, Nút Hamburger -->
+      <div class="nav-actions">
+        <!-- Nút chuyển ngôn ngữ VI | EN -->
+        <button type="button" class="icon-btn" id="langToggleBtn" aria-label="Chuyển sang tiếng Anh" data-i18n-attr="aria-label:langToggleAria">
+          <span id="langLabel" aria-hidden="true">EN</span>
+        </button>
+
+        <!-- Nút chuyển theme Sáng/Tối -->
+        <button type="button" class="icon-btn" id="themeToggleBtn" aria-label="Chuyển đổi giao diện sáng/tối" aria-pressed="false" data-i18n-attr="aria-label:themeToggleAria">
+          <svg class="theme-icon-sun" id="iconSun" viewBox="0 0 24 24" style="display: none;" aria-hidden="true">
+            <path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96c.39-.39.39-1.03 0-1.41s-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36c.39-.39.39-1.03 0-1.41s-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/>
+          </svg>
+          <svg class="theme-icon-moon" id="iconMoon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12.3 2a10 10 0 0 0-.19 20 10.04 10.04 0 0 0 9.95-8.81.75.75 0 0 0-.8-1.03 8.5 8.5 0 0 1-9.96-9.96.75.75 0 0 0-1.04-.8A9.9 9.9 0 0 0 12.3 2z"/>
+          </svg>
+        </button>
+
+        <!-- Nút Hamburger Menu cho màn hình <= 960px -->
+        <button type="button" class="icon-btn nav-toggle" id="navToggleBtn" aria-label="Mở danh mục điều hướng" aria-expanded="false" data-i18n-attr="aria-label:navMenuAria">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- NỘI DUNG CHÍNH (MAIN) -->
+  <main id="mainContent">
+
+    <!-- [MỤC 1: TRANG CHỦ & HERO SECTION] -->
+    <section id="home" class="hero-section">
+      <div class="container">
+        <div class="hero-banner-card reveal-on-scroll">
+          <!-- Ảnh bìa Cover có Parallax nhẹ -->
+          <div class="hero-cover-wrapper">
+            <img 
+              src="assets/cover.jpg" 
+              alt="Ảnh bìa trang cá nhân Nguyễn Hoài An" 
+              class="hero-cover-img" 
+              id="heroCoverImg"
+              data-i18n-attr="alt:coverAlt"
+              onerror="handleCoverError(this);"
+            >
+            <div class="hero-cover-overlay"></div>
+          </div>
+
+          <!-- Nội dung tóm lược, Avatar & Chữ tự gõ Typewriter -->
+          <div class="hero-content-wrapper">
+            <!-- Avatar tròn có viền gradient xoay, quầng sáng & fallback chữ HA -->
+            <div class="hero-avatar-container" id="heroAvatarContainer">
+              <div class="hero-avatar-inner">
+                <img 
+                  src="assets/avatar.png" 
+                  alt="Ảnh đại diện Nguyễn Hoài An" 
+                  class="hero-avatar-img" 
+                  id="heroAvatarImg"
+                  data-i18n-attr="alt:avatarAlt"
+                  onerror="handleAvatarError(this);"
+                >
+                <div class="hero-avatar-fallback" aria-hidden="true">HA</div>
+              </div>
+            </div>
+
+            <div class="hero-info">
+              <div class="hero-greeting" data-i18n="heroGreeting">Xin chào, tôi là</div>
+              <!-- Tên có gradient chuyển động chậm duy nhất -->
+              <h1 class="hero-name">
+                <span class="hero-name-gradient" data-i18n="heroName">Nguyễn Hoài An</span>
+              </h1>
+
+              <!-- Dòng Typewriter tự gõ xoay vòng (Hiệu ứng 2) -->
+              <div class="hero-typewriter-container" aria-live="polite">
+                <span id="typewriterText" data-i18n="typewriter1">Sinh viên Trí tuệ nhân tạo</span>
+                <span class="typewriter-cursor" aria-hidden="true"></span>
+              </div>
+
+              <p class="hero-tagline" data-i18n="heroTagline">Sinh viên Trí tuệ nhân tạo · Đại học Lạc Hồng</p>
+              <p class="hero-bio" data-i18n="heroBio">Đang trong quá trình khám phá tri thức, rèn luyện kỹ năng và từng bước xây dựng nền tảng vững chắc trong ngành Trí tuệ nhân tạo.</p>
+
+              <!-- Các nút hành động chính (CTA) & Mạng xã hội -->
+              <div class="hero-actions">
+                <a href="#about" class="btn btn-primary" data-i18n="btnAbout">Về tôi</a>
+                <a href="#contact" class="btn btn-secondary" data-i18n="btnContact">Liên hệ ngay</a>
+
+                <!-- Cụm nút mạng xã hội -->
+                <div class="hero-socials">
+                  <a href="#" class="social-link has-tooltip" id="linkGithub" aria-label="GitHub của Nguyễn Hoài An" data-tooltip="Sắp cập nhật">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+                    </svg>
+                  </a>
+
+                  <a href="#" class="social-link has-tooltip" id="linkFacebook" aria-label="Facebook của Nguyễn Hoài An" data-tooltip="Sắp cập nhật">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                    </svg>
+                  </a>
+
+                  <a href="mailto:anguyenhoai670@gmail.com" class="social-link has-tooltip" aria-label="Gửi email" data-tooltip="anguyenhoai670@gmail.com">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                    </svg>
+                  </a>
+
+                  <a href="tel:0888700789" class="social-link has-tooltip" aria-label="Gọi điện thoại" data-tooltip="0888700789">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 00-1.01.24l-1.57 1.97c-2.83-1.44-5.15-3.75-6.59-6.59l1.97-1.57c.26-.26.35-.65.24-1.01A11.36 11.36 0 018.96 4.3c0-.55-.45-1-1-1H4.3c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.69c0-.55-.45-1-.99-.92z"/>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5 THẺ TỔNG QUAN DƯỚI HERO -->
+        <div class="overview-grid">
+          <!-- 1. Về tôi -->
+          <div class="card overview-card reveal-on-scroll">
+            <div class="overview-card-header">
+              <div class="overview-card-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+              </div>
+              <h2 class="overview-card-title" data-i18n="overviewAboutTitle">Về tôi</h2>
+            </div>
+            <p class="overview-card-desc" data-i18n="overviewAboutDesc">Sinh viên năm nhất ngành AI tại Đại học Lạc Hồng, yêu thích học hỏi và ước mơ vươn ra thế giới.</p>
+            <a href="#about" class="overview-card-link">
+              <span data-i18n="cardViewMore">Xem chi tiết</span>
+              <span aria-hidden="true">→</span>
+            </a>
+          </div>
+
+          <!-- 2. Kỹ năng -->
+          <div class="card overview-card reveal-on-scroll">
+            <div class="overview-card-header">
+              <div class="overview-card-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
+              </div>
+              <h2 class="overview-card-title" data-i18n="overviewSkillsTitle">Kỹ năng</h2>
+            </div>
+            <p class="overview-card-desc" data-i18n="overviewSkillsDesc">Nền tảng Python căn bản, vibe coding trong CLB Adley, trau dồi tiếng Anh A1 lên IELTS 7.0+ và kỹ năng mềm.</p>
+            <a href="#skills" class="overview-card-link">
+              <span data-i18n="cardViewMore">Xem chi tiết</span>
+              <span aria-hidden="true">→</span>
+            </a>
+          </div>
+
+          <!-- 3. Hành trình (MỤC MỚI) -->
+          <div class="card overview-card reveal-on-scroll">
+            <div class="overview-card-header">
+              <div class="overview-card-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7z"/></svg>
+              </div>
+              <h2 class="overview-card-title" data-i18n="overviewJourneyTitle">Hành trình</h2>
+            </div>
+            <p class="overview-card-desc" data-i18n="overviewJourneyDesc">Những bước đi thực tế đã và đang diễn ra từ mốc 09/2026 tại Đại học Lạc Hồng và CLB Adley.</p>
+            <a href="#journey" class="overview-card-link">
+              <span data-i18n="cardViewMore">Xem chi tiết</span>
+              <span aria-hidden="true">→</span>
+            </a>
+          </div>
+
+          <!-- 4. Lộ trình -->
+          <div class="card overview-card reveal-on-scroll">
+            <div class="overview-card-header">
+              <div class="overview-card-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/></svg>
+              </div>
+              <h2 class="overview-card-title" data-i18n="overviewRoadmapTitle">Lộ trình</h2>
+            </div>
+            <p class="overview-card-desc" data-i18n="overviewRoadmapDesc">Kế hoạch học tập 2026 - 2030 với mục tiêu tốt nghiệp ổn định và tự xây dựng mô hình AI.</p>
+            <a href="#roadmap" class="overview-card-link">
+              <span data-i18n="cardViewMore">Xem chi tiết</span>
+              <span aria-hidden="true">→</span>
+            </a>
+          </div>
+
+          <!-- 5. Liên hệ -->
+          <div class="card overview-card reveal-on-scroll">
+            <div class="overview-card-header">
+              <div class="overview-card-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"/></svg>
+              </div>
+              <h2 class="overview-card-title" data-i18n="overviewContactTitle">Liên hệ</h2>
+            </div>
+            <p class="overview-card-desc" data-i18n="overviewContactDesc">Sẵn sàng kết nối qua Email, điện thoại hoặc biểu mẫu tin nhắn tại khu vực Đồng Nai.</p>
+            <a href="#contact" class="overview-card-link">
+              <span data-i18n="cardViewMore">Xem chi tiết</span>
+              <span aria-hidden="true">→</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- [MỤC 2: VỀ TÔI (ABOUT)] -->
+    <section id="about" class="section-wrapper">
+      <div class="container">
+        <div class="section-header reveal-on-scroll">
+          <h2 class="section-title" data-i18n="aboutSectionTitle">Về tôi</h2>
+          <p class="section-subtitle" data-i18n="aboutSectionSubtitle">Thông tin cá nhân & định hướng phát triển bản thân</p>
+        </div>
+
+        <div class="about-grid">
+          <!-- Cột thông tin lý lịch cá nhân -->
+          <div class="card reveal-on-scroll">
+            <ul class="about-details-list">
+              <li class="about-item">
+                <span class="about-item-label" data-i18n="aboutLabelName">Họ và tên:</span>
+                <span class="about-item-value" data-i18n="heroName">Nguyễn Hoài An</span>
+              </li>
+              <li class="about-item">
+                <span class="about-item-label" data-i18n="aboutLabelDob">Ngày sinh:</span>
+                <span class="about-item-value" data-i18n="aboutDobValue">31/10/2008</span>
+              </li>
+              <li class="about-item">
+                <span class="about-item-label" data-i18n="aboutLabelAge">Tuổi:</span>
+                <span class="about-item-value" id="calcAgeDisplay">18</span>
+              </li>
+              <li class="about-item">
+                <span class="about-item-label" data-i18n="aboutLabelEducation">Trường học:</span>
+                <span class="about-item-value" data-i18n="aboutEducationValue">Trường Đại học Lạc Hồng (Sinh viên năm nhất)</span>
+              </li>
+              <li class="about-item">
+                <span class="about-item-label" data-i18n="aboutLabelMajor">Chuyên ngành:</span>
+                <span class="about-item-value" data-i18n="aboutMajorValue">Trí tuệ nhân tạo (AI)</span>
+              </li>
+              <li class="about-item">
+                <span class="about-item-label" data-i18n="aboutLabelLocation">Khu vực:</span>
+                <span class="about-item-value" data-i18n="aboutLocationValue">Biên Hòa, Trảng Bom, Đồng Nai</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Cột mục tiêu & ước mơ dài hạn -->
+          <div class="about-cards-col reveal-on-scroll">
+            <div class="card about-highlight-box">
+              <h3 class="about-highlight-title">
+                <span aria-hidden="true">🎯</span>
+                <span data-i18n="aboutGoalTitle">Mục tiêu ngành học</span>
+              </h3>
+              <p class="about-desc-text" data-i18n="aboutGoalContent">
+                Tốt nghiệp ra trường tìm kiếm được một công việc ổn định và tự tay xây dựng được 1 mô hình AI phục vụ bản thân và cuộc sống.
+              </p>
+            </div>
+
+            <div class="card about-highlight-box">
+              <h3 class="about-highlight-title">
+                <span aria-hidden="true">✈️</span>
+                <span data-i18n="aboutDreamTitle">Ước mơ dài hạn</span>
+              </h3>
+              <p class="about-desc-text" data-i18n="aboutDreamContent">
+                Có cơ hội đi du học và sinh sống ở nước ngoài.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- [MỤC 3: KỸ NĂNG & RÈN LUYỆN (SKILLS)] -->
+    <section id="skills" class="section-wrapper">
+      <div class="container">
+        <div class="section-header reveal-on-scroll">
+          <h2 class="section-title" data-i18n="skillsSectionTitle">Kỹ năng & Rèn luyện</h2>
+          <p class="section-subtitle" data-i18n="skillsSectionSubtitle">Đánh giá trung thực theo từng cấp bậc chuẩn, nói không với số liệu ảo</p>
+        </div>
+
+        <div class="skills-intro-box reveal-on-scroll">
+          <p class="skills-intro-text" data-i18n="skillsIntro">
+            Tôi là người đang trong quá trình tìm tòi và phát triển bản thân. Kỹ năng cốt lõi là học hỏi và khám phá nhiều điều mới.
+          </p>
+        </div>
+
+        <div class="skills-grid" id="skillsGridContainer">
+          <!-- 1. Python căn bản -->
+          <div class="card skill-card reveal-on-scroll">
+            <div class="skill-card-top">
+              <h3 class="skill-title" data-i18n="skillPythonTitle">Lập trình Python</h3>
+              <span class="skill-badge" data-i18n="skillPythonLevel">Mức căn bản</span>
+            </div>
+            <div class="skill-scale-stepper" aria-label="Thang đo kỹ năng Python">
+              <span class="scale-step" data-i18n="stepIntro">Nhập môn</span>
+              <span class="scale-step active" data-i18n="stepBasic">Căn bản</span>
+              <span class="scale-step" data-i18n="stepIndependent">Độc lập</span>
+            </div>
+            <p class="skill-desc" data-i18n="skillPythonDesc">Nắm vững cú pháp cơ bản, rèn luyện tư duy thuật toán nền tảng phục vụ nhập môn Trí tuệ nhân tạo.</p>
+          </div>
+
+          <!-- 2. Python Vibe Coding (CLB Adley) -->
+          <div class="card skill-card reveal-on-scroll">
+            <div class="skill-card-top">
+              <h3 class="skill-title" data-i18n="skillVibeTitle">Python Vibe Coding</h3>
+              <span class="skill-badge" data-i18n="skillVibeLevel">Đang học</span>
+            </div>
+            <div class="skill-scale-stepper" aria-label="Mức độ học">
+              <span class="scale-step" data-i18n="stepStart">Khởi đầu</span>
+              <span class="scale-step active" data-i18n="stepLearningAdley">Đang học (CLB Adley)</span>
+              <span class="scale-step" data-i18n="stepDeepApp">Ứng dụng sâu</span>
+            </div>
+            <p class="skill-desc" data-i18n="skillVibeDesc">Đang học và thực hành lập trình trong CLB Adley để nâng cao tư duy xây dựng ứng dụng thực tế.</p>
+          </div>
+
+          <!-- 3. Tiếng Anh (CEFR A1 -> C2) -->
+          <div class="card skill-card reveal-on-scroll">
+            <div class="skill-card-top">
+              <h3 class="skill-title" data-i18n="skillEnglishTitle">Tiếng Anh</h3>
+              <span class="skill-badge" data-i18n="skillEnglishLevel">Mức A1 (Khung CEFR)</span>
+            </div>
+            <!-- Thang đo CEFR với id để hiệu ứng sáng dần (Hiệu ứng 8) -->
+            <div class="skill-scale-stepper" id="cefrStepper" aria-label="Thang đo CEFR">
+              <span class="scale-step active">A1</span>
+              <span class="scale-step">A2</span>
+              <span class="scale-step">B1</span>
+              <span class="scale-step">B2</span>
+              <span class="scale-step">C1</span>
+              <span class="scale-step">C2</span>
+            </div>
+            <p class="skill-desc" style="margin-bottom: 0.5rem; font-weight: 700; color: var(--accent-primary);" data-i18n="skillEnglishTarget">Mục tiêu: Đạt IELTS trên 7.0</p>
+            <p class="skill-desc" data-i18n="skillEnglishDesc">Đang tích cực rèn luyện từ vựng, ngữ pháp và phát âm nền tảng để từng bước chinh phục mục tiêu IELTS trên 7.0.</p>
+          </div>
+
+          <!-- 4. Kỹ năng mềm -->
+          <div class="card skill-card reveal-on-scroll">
+            <div class="skill-card-top">
+              <h3 class="skill-title" data-i18n="skillSoftTitle">Kỹ năng mềm đang rèn luyện</h3>
+              <span class="skill-badge" data-i18n="skillSoftLevel">Đang rèn luyện</span>
+            </div>
+            <div class="skill-scale-stepper" aria-label="Mức độ rèn luyện">
+              <span class="scale-step" data-i18n="stepFamiliar">Làm quen</span>
+              <span class="scale-step active" data-i18n="stepTraining">Rèn luyện</span>
+              <span class="scale-step" data-i18n="stepMaster">Thuần thục</span>
+            </div>
+            <p class="skill-desc" data-i18n="skillSoftDesc">Tập trung rèn luyện phong thái giao tiếp tự tin, nói trước đám đông, thuyết trình và các kỹ năng mềm khác.</p>
+          </div>
+
+          <!-- 5. Tự học & khám phá mới -->
+          <div class="card skill-card reveal-on-scroll">
+            <div class="skill-card-top">
+              <h3 class="skill-title" data-i18n="skillLearnTitle">Học hỏi & Khám phá mới</h3>
+              <span class="skill-badge" data-i18n="skillLearnLevel">Thường xuyên trau dồi</span>
+            </div>
+            <div class="skill-scale-stepper" aria-label="Mức độ tự học">
+              <span class="scale-step" data-i18n="stepStart">Khởi đầu</span>
+              <span class="scale-step" data-i18n="stepActive">Tích cực</span>
+              <span class="scale-step active" data-i18n="stepFrequent">Thường xuyên</span>
+            </div>
+            <p class="skill-desc" data-i18n="skillLearnDesc">Chủ động tìm tòi công nghệ mới, duy trì thói quen đọc tài liệu và ứng dụng vào thực tế mỗi ngày.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- [MỤC 4: HÀNH TRÌNH (JOURNEY - MỤC MỚI)] -->
+    <section id="journey" class="section-wrapper">
+      <div class="container">
+        <div class="section-header reveal-on-scroll">
+          <h2 class="section-title" data-i18n="journeySectionTitle">Hành trình của tôi</h2>
+          <p class="section-subtitle" data-i18n="journeySectionSubtitle">Những gì tôi đã và đang đi qua trên con đường học tập</p>
+        </div>
+
+        <div class="journey-timeline-wrapper">
+          <!-- Đường nối vẽ dần theo độ cuộn (Hiệu ứng 8) -->
+          <div class="journey-connecting-track" aria-hidden="true">
+            <div class="journey-connecting-fill" id="journeyLineProgress"></div>
+          </div>
+
+          <!-- Danh sách mốc Hành trình (render động từ mảng JOURNEY, có sẵn HTML tĩnh fallback khi tắt JS) -->
+          <div id="journeyTimelineList">
+            <!-- Mốc 1: 09/2026 - Đã qua -->
+            <div class="timeline-item left reveal-on-scroll" id="journey-1">
+              <div class="timeline-dot" aria-hidden="true"></div>
+              <div class="card timeline-card">
+                <div class="timeline-badges">
+                  <span class="timeline-date-badge">Tháng 9, 2026</span>
+                  <span class="timeline-status-badge done" data-i18n="journeyStatusDone">Đã qua</span>
+                </div>
+                <h3 class="timeline-title" data-i18n="journeyM1Title">Bước chân đầu tiên đến giảng đường</h3>
+                <p class="timeline-desc" data-i18n="journeyM1Desc">Bắt đầu đặt chân đến Trường Đại học Lạc Hồng, bước đầu tiên của hành trình sinh viên ngành Trí tuệ nhân tạo.</p>
+              </div>
+            </div>
+
+            <!-- Mốc 2: Đang diễn ra - Ngày để trống -->
+            <div class="timeline-item right reveal-on-scroll" id="journey-2">
+              <div class="timeline-dot timeline-dot-pulse" aria-hidden="true"></div>
+              <div class="card timeline-card">
+                <div class="timeline-badges">
+                  <span class="timeline-status-badge current" data-i18n="journeyStatusCurrent">Đang diễn ra</span>
+                </div>
+                <h3 class="timeline-title" data-i18n="journeyM2Title">Học hỏi Python & Vibe Coding</h3>
+                <p class="timeline-desc" data-i18n="journeyM2Desc">Tìm hiểu Python và vibe coding trong CLB Adley.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- [MỤC 5: LỘ TRÌNH (ROADMAP - KẾ HOẠCH TƯƠNG LAI)] -->
+    <section id="roadmap" class="section-wrapper">
+      <div class="container">
+        <div class="section-header reveal-on-scroll">
+          <h2 class="section-title" data-i18n="roadmapSectionTitle">Lộ trình học tập & Phát triển</h2>
+          <p class="section-subtitle" data-i18n="roadmapSectionSubtitle">Kế hoạch tương lai 2026 - 2030 tính theo thời gian thực</p>
+        </div>
+
+        <!-- Thanh đo tiến độ 09/2026 -> 10/2030 tính theo ngày hiện tại -->
+        <div class="card roadmap-progress-card reveal-on-scroll">
+          <div class="progress-header">
+            <span data-i18n="roadmapProgressLabel">Tiến độ hoàn thành chặng đại học (09/2026 → 10/2030):</span>
+            <span id="roadmapProgressPercent" style="font-weight: 800; color: var(--accent-primary);">0%</span>
+          </div>
+          <div class="progress-bar-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="roadmapProgressBar">
+            <div class="progress-bar-fill" id="roadmapProgressFill"></div>
+          </div>
+        </div>
+
+        <!-- Lưới các thẻ cột mốc tương lai (thiết kế khác biệt với timeline của Hành trình) -->
+        <div class="roadmap-cards-grid">
+          <!-- Cột mốc 1: 09/2026 -->
+          <div class="card reveal-on-scroll">
+            <span class="roadmap-card-time" data-i18n="roadmapStage1Time">09/2026</span>
+            <h3 class="timeline-title" data-i18n="roadmapStage1Title">Bắt đầu năm nhất đại học</h3>
+            <p class="timeline-desc" data-i18n="roadmapStage1Desc">Bắt đầu chặng đường đại học, làm quen môi trường học thuật và xây dựng nền tảng toán học, lập trình.</p>
+          </div>
+
+          <!-- Cột mốc 2: Trong thời gian học -->
+          <div class="card reveal-on-scroll">
+            <span class="roadmap-card-time" data-i18n="roadmapStage2Time">Trong thời gian học</span>
+            <h3 class="timeline-title" data-i18n="roadmapStage2Title">Rèn luyện kỹ năng & Ngoại ngữ</h3>
+            <p class="timeline-desc" data-i18n="roadmapStage2Desc">Trong thời gian học: nỗ lực đạt IELTS trên 7.0; tự tin giao tiếp lưu loát trước đám đông; học các kỹ năng mềm như thuyết trình, v.v.</p>
+          </div>
+
+          <!-- Cột mốc 3: 10/2030 -->
+          <div class="card reveal-on-scroll">
+            <span class="roadmap-card-time" data-i18n="roadmapStage3Time">10/2030</span>
+            <h3 class="timeline-title" data-i18n="roadmapStage3Title">Tốt nghiệp & Việc làm ổn định</h3>
+            <p class="timeline-desc" data-i18n="roadmapStage3Desc">Tốt nghiệp và có công việc ổn định, tự xây dựng được 1 mô hình AI phục vụ bản thân và cuộc sống.</p>
+          </div>
+
+          <!-- Cột mốc 4: Ước mơ dài hạn -->
+          <div class="card reveal-on-scroll">
+            <span class="roadmap-card-time" data-i18n="roadmapStage4Time">Ước mơ dài hạn</span>
+            <h3 class="timeline-title" data-i18n="roadmapStage4Title">Du học & Định cư nước ngoài</h3>
+            <p class="timeline-desc" data-i18n="roadmapStage4Desc">Chuẩn bị đầy đủ hành trang tri thức và ngoại ngữ để thực hiện ước mơ đi du học và sinh sống ở nước ngoài.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- [MỤC 6: LIÊN HỆ (CONTACT - ĐẶT Ở CUỐI TRANG)] -->
+    <section id="contact" class="section-wrapper">
+      <div class="container">
+        <div class="section-header reveal-on-scroll">
+          <h2 class="section-title" data-i18n="contactSectionTitle">Liên hệ</h2>
+          <p class="section-subtitle" data-i18n="contactSectionSubtitle">Gửi tin nhắn hoặc liên lạc trực tiếp với tôi qua các kênh bên dưới</p>
+        </div>
+
+        <div class="contact-grid">
+          <!-- Cột thông tin liên hệ trực tiếp -->
+          <div class="card reveal-on-scroll">
+            <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1.5rem;" data-i18n="contactInfoHeading">Thông tin kết nối</h3>
+            <ul class="contact-info-list">
+              <!-- Địa chỉ -->
+              <li class="contact-info-item">
+                <div class="contact-info-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                </div>
+                <div>
+                  <div class="contact-info-title" data-i18n="contactAddressLabel">Địa chỉ:</div>
+                  <div class="contact-info-link" data-i18n="contactAddressValue">Biên Hòa, Trảng Bom, Đồng Nai</div>
+                </div>
+              </li>
+
+              <!-- Email -->
+              <li class="contact-info-item">
+                <div class="contact-info-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                </div>
+                <div>
+                  <div class="contact-info-title" data-i18n="contactEmailLabel">Email:</div>
+                  <a href="mailto:anguyenhoai670@gmail.com" class="contact-info-link">anguyenhoai670@gmail.com</a>
+                </div>
+              </li>
+
+              <!-- SĐT -->
+              <li class="contact-info-item">
+                <div class="contact-info-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 00-1.01.24l-1.57 1.97c-2.83-1.44-5.15-3.75-6.59-6.59l1.97-1.57c.26-.26.35-.65.24-1.01A11.36 11.36 0 018.96 4.3c0-.55-.45-1-1-1H4.3c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.69c0-.55-.45-1-.99-.92z"/></svg>
+                </div>
+                <div>
+                  <div class="contact-info-title" data-i18n="contactPhoneLabel">Điện thoại:</div>
+                  <a href="tel:0888700789" class="contact-info-link">0888700789</a>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Cột Form liên hệ trực tiếp -->
+          <div class="card reveal-on-scroll">
+            <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1.5rem;" data-i18n="contactFormHeading">Gửi tin nhắn trực tiếp</h3>
+
+            <form class="contact-form" id="contactForm" novalidate>
+              <!-- Ô bẫy Bot chống Spam (Honeypot) -->
+              <div class="form-bot-field" aria-hidden="true">
+                <label for="formBotField">Đừng điền ô này nếu bạn là người thật:</label>
+                <input type="text" id="formBotField" name="bot_honey" tabindex="-1" autocomplete="off">
+              </div>
+
+              <!-- Ô 1: Họ và tên -->
+              <div class="form-group">
+                <label for="contactName" class="form-label" data-i18n="formNameLabel">Họ và tên *</label>
+                <input 
+                  type="text" 
+                  id="contactName" 
+                  name="name" 
+                  class="form-input" 
+                  placeholder="Ví dụ: Nguyễn Văn A"
+                  data-i18n-attr="placeholder:formNamePlaceholder"
+                  required
+                  aria-required="true"
+                  aria-invalid="false"
+                  aria-describedby="nameError"
+                >
+                <span class="form-error-msg" id="nameError" role="alert"></span>
+              </div>
+
+              <!-- Ô 2: Email -->
+              <div class="form-group">
+                <label for="contactEmail" class="form-label" data-i18n="formEmailLabel">Địa chỉ Email *</label>
+                <input 
+                  type="email" 
+                  id="contactEmail" 
+                  name="email" 
+                  class="form-input" 
+                  placeholder="email@vidu.com"
+                  data-i18n-attr="placeholder:formEmailPlaceholder"
+                  required
+                  aria-required="true"
+                  aria-invalid="false"
+                  aria-describedby="emailError"
+                >
+                <span class="form-error-msg" id="emailError" role="alert"></span>
+              </div>
+
+              <!-- Ô 3: Nội dung tin nhắn -->
+              <div class="form-group">
+                <label for="contactMessage" class="form-label" data-i18n="formMessageLabel">Nội dung tin nhắn *</label>
+                <textarea 
+                  id="contactMessage" 
+                  name="message" 
+                  class="form-input form-textarea" 
+                  placeholder="Nhập nội dung bạn muốn trao đổi (tối thiểu 10 ký tự)..."
+                  data-i18n-attr="placeholder:formMessagePlaceholder"
+                  required
+                  aria-required="true"
+                  aria-invalid="false"
+                  aria-describedby="messageError"
+                ></textarea>
+                <div class="form-meta">
+                  <span class="form-error-msg" id="messageError" role="alert"></span>
+                  <span class="char-counter" id="charCounter" aria-live="polite">0/1000</span>
+                </div>
+              </div>
+
+              <!-- Nút gửi Form -->
+              <button type="submit" class="btn btn-primary" id="formSubmitBtn">
+                <span id="formSubmitText" data-i18n="formSubmitBtn">Gửi tin nhắn</span>
+              </button>
+
+              <!-- Khối thông báo phản hồi trạng thái form -->
+              <div class="form-status" id="formStatusBox" role="status" aria-live="polite"></div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- NÚT CUỘN LÊN ĐẦU TRANG NỔI THÔNG MINH (Hiệu ứng 9) -->
+  <button type="button" class="back-to-top-floating" id="backToTopFloating" aria-label="Cuộn lên đầu trang">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+      <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/>
+    </svg>
+  </button>
+
+  <!-- CHÂN TRANG (FOOTER) -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <div class="footer-text" id="footerText" data-i18n="footerCopyright">
+        © 2026 Nguyễn Hoài An. Thiết kế với HTML, CSS & JavaScript thuần.
+      </div>
+      <button type="button" class="back-to-top-btn" id="backToTopBtn" aria-label="Cuộn lên đầu trang">
+        <span data-i18n="footerBackToTop">Lên đầu trang</span>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+          <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/>
+        </svg>
+      </button>
+    </div>
+  </footer>
+
+  <!-- TẢI CÁC SCRIPT (DÙNG DEFER THƯỜNG, KHÔNG DÙNG ES MODULE ĐỂ MỞ BẰNG DOUBLE-CLICK FILE:// VẪN CHẠY) -->
+  <script defer src="js/i18n.js"></script>
+  <script defer src="js/logic.js"></script>
+  <script defer src="js/effects.js"></script>
+  <script defer src="js/app.js"></script>
+</body>
+</html>
